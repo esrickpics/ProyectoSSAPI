@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-5 py-4">
+    <div class="form-container">
+        <!-- Título de la sección -->
+        <div class="form-title">
+            <i class="bi bi-clipboard-data section-icon"></i>
+            <span>Activos</span>
+        </div>
+
+        <!-- Tarjetas de estadísticas -->
+        <div class="row mb-4 text-center">
+            <div class="col-md-4 mb-3">
+                <div class="stat-item bgcolorazul p-4">
+                    <div class="stat-icon">
+                        <i class="bi bi-database"></i>
+                    </div>
+                    <h3>Total de Activos</h3>
+                    <p class="stat-number">{{ total_activos }}</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="stat-item bgcolorazul p-4">
+                    <div class="stat-icon">
+                        <i class="bi bi-file-earmark-text"></i>
+                    </div>
+                    <h3>Reportes</h3>
+                    <p class="stat-number">{{ total_reportes }}</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="stat-item bgcolorazul p-4">
+                    <div class="stat-icon">
+                        <i class="bi bi-wrench"></i>
+                    </div>
+                    <h3>Activos En Mantenimiento</h3>
+                    <p class="stat-number">{{ activos_mantenimiento }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tarjetas de acciones -->
+        <div class="row text-center">
+            <div class="col-md-4 mb-3">
+                <div class="action-item p-4">
+                    <h4>Agregar Usuario</h4>
+                    <p>Agrega un nuevo usuario al sistema</p>
+                    <a href="#" class="btn btn-action">AGREGAR</a>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="action-item p-4">
+                    <h4>Inventario</h4>
+                    <p>Ver los activos del inventario</p>
+                    <a href="{% url 'activos:activo-list' %}" class="btn btn-action">VER LISTA</a>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="action-item p-4">
+                    <h4>Agregar nuevo activo</h4>
+                    <p>Agrega un nuevo producto al inventario</p>
+                    <a href="{% url 'activos:activo-create' %}" class="btn btn-action">AGREGAR</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
