@@ -17,22 +17,39 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-fluid px-5 py-4">
+<div class="px-5 py-4">
     <div class="form-container">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div class="form-title">
-                <i class="bi bi-box-seam section-icon"></i>
-                <span>Gestión de Activos</span>
-            </div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="form-title mb-0">
+                <img src="{% static 'core/img/Iconos/activos.svg' %}" alt="Icono" style="width: 40px; height: 40px; margin-right: 15px;">
+                Gestión de Activos
+            </h2>
             <a href="{% url 'activos:activo-create' %}" class="btn btn-primary-custom">
                 <i class="bi bi-plus-circle"></i> Nuevo Activo
             </a>
         </div>
-
+        <hr class="linea" style="border-color: #32407b;">
 <!-- Filtros -->
 <div class="card mb-3">
-    <div class="card-header">
+    <div class="card-header d-flex justify-content-between align-items-center">
         <h5 class="mb-0"><i class="bi bi-funnel"></i> Filtros</h5>
+        <div class="d-flex gap-2">
+            <!-- Botón pequeño para reporte general -->
+            <form method="get" action="{% url 'reportes:reporte-activos' %}" class="d-inline">
+                {% for key, value in request.GET.items %}
+                    <input type="hidden" name="{{ key }}" value="{{ value }}">
+                {% endfor %}
+                <button type="submit" class="btn btn-outline-primary btn-sm" title="Generar reporte PDF de todos los activos filtrados">
+                    <i class="bi bi-file-earmark-pdf"></i> Reporte PDF
+                </button>
+            </form>
+            
+            <!-- Botón para activar selección -->
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="toggleSelection">
+                <i class="bi bi-check-square"></i> Seleccionar
+            </button>
+            
+        </div>
     </div>
     <div class="card-body">
         <form method="get" id="filterForm">
@@ -74,20 +91,6 @@
         </form>
     </div>
 </div>
-
-<!-- Estadísticas -->
-<div class="row mb-3">
-    <div class="col-md-12">
-        <div class="alert alert-info mb-0">
-            <i class="bi bi-info-circle"></i> 
-            Total de activos: <strong>{{ total_activos }}</strong>
-            {% if request.GET %}
-            (filtrados de {{ page_obj.paginator.count }} resultados)
-            {% endif %}
-        </div>
-    </div>
-</div>
-
 <!-- Tabla de activos -->
 {% if activos %}
 <div class="card">
@@ -96,6 +99,9 @@
             <table class="table table-hover">
                 <thead>
                     <tr>
+                        <th class="selection-column" style="display: none;">
+                            <input type="checkbox" id="selectAll" class="form-check-input">
+                        </th>
                         <th>Código</th>
                         <th>Categoría</th>
                         <th>Marca/Modelo</th>
@@ -108,6 +114,10 @@
                 <tbody>
                     {% for activo in activos %}
                     <tr>
+                        <td class="selection-column" style="display: none;">
+                            <input type="checkbox" name="activos_seleccionados" value="{{ activo.pk }}" 
+                                   class="form-check-input activo-checkbox">
+                        </td>
                         <td>
                             <a href="{% url 'activos:activo-detail' activo.pk %}" class="text-decoration-none">
                                 <strong>{{ activo.codigo_inventario }}</strong>
@@ -148,6 +158,10 @@
                                    class="btn btn-sm btn-outline-info" title="Ver detalles">
                                     <i class="bi bi-eye"></i>
                                 </a>
+                                <a href="{% url 'mantenimientos:mantenimiento-create' %}?activo_id={{ activo.pk }}" 
+                                   class="btn btn-sm btn-outline-warning" title="Agregar mantenimiento">
+                                    <i class="bi bi-tools"></i>
+                                </a>
                                 <a href="{% url 'activos:activo-update' activo.pk %}" 
                                    class="btn btn-sm btn-outline-primary" title="Editar">
                                     <i class="bi bi-pencil"></i>
@@ -166,16 +180,46 @@
     </div>
 </div>
 
+<!-- Formulario de Nota de Entrega (oculto por defecto) -->
+<div id="notaEntregaSection" class="card mb-3" style="display: none;">
+    <div class="card-header">
+        <h6 class="mb-0"><i class="bi bi-clipboard-check"></i> Generar Nota de Entrega</h6>
+    </div>
+    <div class="card-body">
+        <form method="post" action="{% url 'reportes:nota-entrega' %}" id="notaEntregaForm">
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Responsable de entrega</label>
+                    <input type="text" name="responsable_entrega" class="form-control form-control-sm" 
+                           placeholder="Nombre del responsable" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Observaciones</label>
+                    <input type="text" name="observaciones" class="form-control form-control-sm" 
+                           placeholder="Observaciones (opcional)">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="submit" class="btn btn-success btn-sm w-100" id="btnNotaEntrega" disabled>
+                        <i class="bi bi-clipboard-check"></i> Generar Nota
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Paginación -->
 {% if is_paginated %}
 <nav aria-label="Page navigation" class="mt-3">
     <ul class="pagination justify-content-center">
         {% if page_obj.has_previous %}
         <li class="page-item">
-            <a class="page-link" href="?page=1{{ request.GET.urlencode }}">&laquo; Primera</a>
+            <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page=1">&laquo; Primera</a>
         </li>
         <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode }}">Anterior</a>
+            <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}">Anterior</a>
         </li>
         {% endif %}
 
@@ -187,10 +231,10 @@
 
         {% if page_obj.has_next %}
         <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode }}">Siguiente</a>
+            <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}">Siguiente</a>
         </li>
         <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}&{{ request.GET.urlencode }}">Última &raquo;</a>
+            <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.paginator.num_pages }}">Última &raquo;</a>
         </li>
         {% endif %}
     </ul>
@@ -210,128 +254,216 @@
 </div>
 {% endif %}
 
+<!-- Estadísticas -->
+<div class="row mb-3 mt-3">
+    <div class="col-md-12">
+        <div class="alert alert-info mb-0">
+            <i class="bi bi-info-circle"></i> 
+            Total de activos: <strong>{{ total_activos }}</strong>
+            {% if request.GET %}
+            (filtrados de {{ page_obj.paginator.count }} resultados)
+            {% endif %}
+        </div>
+    </div>
+</div>
+
 <!-- Dashboard de Resumen -->
 <div class="row mt-4">
     <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="bi bi-graph-up"></i> Dashboard de Resumen
-                </h5>
-            </div>
-            <div class="card-body">
-                <!-- Estadísticas Generales -->
-                <div class="row mb-4">
-                    <div class="col-md-3">
-                        <div class="stat-item bg-primary text-center p-3 rounded">
-                            <div class="stat-icon">
-                                <i class="bi bi-box-seam"></i>
-                            </div>
-                            <div class="stat-number">{{ total_activos_sistema }}</div>
-                            <div class="stat-label">Total Activos</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="stat-item bg-info text-center p-3 rounded">
-                            <div class="stat-icon">
-                                <i class="bi bi-folder"></i>
-                            </div>
-                            <div class="stat-number">{{ total_categorias }}</div>
-                            <div class="stat-label">Categorías</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="stat-item bg-success text-center p-3 rounded">
-                            <div class="stat-icon">
-                                <i class="bi bi-geo-alt"></i>
-                            </div>
-                            <div class="stat-number">{{ total_ubicaciones }}</div>
-                            <div class="stat-label">Ubicaciones</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="stat-item bg-warning text-center p-3 rounded">
-                            <div class="stat-icon">
-                                <i class="bi bi-person-check"></i>
-                            </div>
-                            <div class="stat-number">{{ total_activos }}</div>
-                            <div class="stat-label">Activos Filtrados</div>
-                        </div>
-                    </div>
-                </div>
+        <h5 class="mb-3" style="color: #32407b;">
+            <i class="bi bi-graph-up"></i> Dashboard de Resumen
+        </h5>
+    </div>
+</div>
 
-                <!-- Activos por Categoría -->
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6><i class="bi bi-pie-chart"></i> Activos por Categoría</h6>
-                        <div class="table-responsive">
-                            <table class="table table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>Categoría</th>
-                                        <th class="text-end">Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for categoria in activos_por_categoria %}
-                                    <tr>
-                                        <td>
-                                            <a href="?categoria={{ categoria.id }}" class="text-decoration-none">
-                                                {{ categoria.nombre }}
-                                            </a>
-                                        </td>
-                                        <td class="text-end">
-                                            <span class="badge bg-primary">{{ categoria.total_activos }}</span>
-                                        </td>
-                                    </tr>
-                                    {% empty %}
-                                    <tr>
-                                        <td colspan="2" class="text-center text-muted">No hay categorías</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- Activos por Ubicación -->
-                    <div class="col-md-6">
-                        <h6><i class="bi bi-geo-alt"></i> Activos por Ubicación</h6>
-                        <div class="table-responsive">
-                            <table class="table table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>Ubicación</th>
-                                        <th class="text-end">Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for ubicacion in activos_por_ubicacion %}
-                                    <tr>
-                                        <td>
-                                            <a href="?ubicacion={{ ubicacion.id }}" class="text-decoration-none">
-                                                {{ ubicacion.nombre }}
-                                            </a>
-                                        </td>
-                                        <td class="text-end">
-                                            <span class="badge bg-success">{{ ubicacion.total_activos }}</span>
-                                        </td>
-                                    </tr>
-                                    {% empty %}
-                                    <tr>
-                                        <td colspan="2" class="text-center text-muted">No hay ubicaciones</td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+<!-- Estadísticas Generales -->
+<div class="row mb-4">
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="stat-item bgcolorazul text-center p-4 h-100">
+            <div class="stat-icon">
+                <i class="bi bi-database"></i>
             </div>
+            <p class="stat-label mb-2">Total de Activos</p>
+            <p class="stat-number mb-0">{{ total_activos_sistema }}</p>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="stat-item bgcolorazul text-center p-4 h-100">
+            <a href="{% url 'activos:categoria-list' %}" class="text-decoration-none text-white">
+            <div class="stat-icon">
+                <i class="bi bi-folder"></i>
+            </div>
+            <p class="stat-label mb-2">Categorías</p>
+            <p class="stat-number mb-0">{{ total_categorias }}</p>
+            </a>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="stat-item bgcolorazul text-center p-4 h-100">
+            <a href="{% url 'activos:ubicacion-list' %}" class="text-decoration-none text-white">
+            <div class="stat-icon">
+                <i class="bi bi-geo-alt"></i>
+            </div>
+            <p class="stat-label mb-2">Ubicaciones</p>
+            <p class="stat-number mb-0">{{ total_ubicaciones }}</p>
+            </a>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3 mb-3">
+        <div class="stat-item bgcolorazul text-center p-4 h-100">
+            <div class="stat-icon">
+                <i class="bi bi-funnel"></i>
+            </div>
+            <p class="stat-label mb-2">Resultados Filtrados</p>
+            <p class="stat-number mb-0">{{ total_activos }}</p>
+        </div>
+    </div>
+</div>
+
+<!-- Distribución de Activos -->
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <div class="info-card h-100">
+            <h6 class="mb-3" style="color: #32407b;">
+                <i class="bi bi-pie-chart"></i> Activos por Categoría
+            </h6>
+            {% if activos_por_categoria %}
+            <ul class="list-group list-group-flush">
+                {% for categoria in activos_por_categoria %}
+                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                    <a href="{% url 'activos:categoria-list' %}" class="text-decoration-none text-dark">
+                        <i class="bi bi-folder"></i> {{ categoria.nombre }}
+                    </a>
+                    <span class="badge rounded-pill" style="background-color: #32407b;">
+                        {{ categoria.total_activos }}
+                    </span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-muted text-center">No hay categorías registradas</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-3">
+        <div class="info-card h-100">
+            <h6 class="mb-3" style="color: #32407b;">
+                <i class="bi bi-geo-alt"></i> Activos por Ubicación
+            </h6>
+            {% if activos_por_ubicacion %}
+            <ul class="list-group list-group-flush">
+                {% for ubicacion in activos_por_ubicacion %}
+                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                    <a href="{% url 'activos:ubicacion-list' %}" class="text-decoration-none text-dark">
+                        <i class="bi bi-geo-alt"></i> {{ ubicacion.nombre }}
+                    </a>
+                    <span class="badge rounded-pill" style="background-color: #282c89;">
+                        {{ ubicacion.total_activos }}
+                    </span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-muted text-center">No hay ubicaciones registradas</p>
+            {% endif %}
         </div>
     </div>
 </div>
     </div>
 </div>
+
+<!-- JavaScript para manejo de selección -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleBtn = document.getElementById('toggleSelection');
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const activoCheckboxes = document.querySelectorAll('.activo-checkbox');
+    const selectionColumns = document.querySelectorAll('.selection-column');
+    const btnNotaEntrega = document.getElementById('btnNotaEntrega');
+    const notaEntregaForm = document.getElementById('notaEntregaForm');
+    const notaEntregaSection = document.getElementById('notaEntregaSection');
+    
+    let selectionMode = false;
+    
+    // Toggle selection mode
+    toggleBtn.addEventListener('click', function() {
+        selectionMode = !selectionMode;
+        
+        if (selectionMode) {
+            // Activar modo selección
+            selectionColumns.forEach(col => col.style.display = 'table-cell');
+            notaEntregaSection.style.display = 'block';
+            toggleBtn.innerHTML = '<i class="bi bi-x-square"></i> Cancelar';
+            toggleBtn.classList.remove('btn-outline-secondary');
+            toggleBtn.classList.add('btn-secondary');
+        } else {
+            // Desactivar modo selección
+            selectionColumns.forEach(col => col.style.display = 'none');
+            notaEntregaSection.style.display = 'none';
+            toggleBtn.innerHTML = '<i class="bi bi-check-square"></i> Seleccionar';
+            toggleBtn.classList.remove('btn-secondary');
+            toggleBtn.classList.add('btn-outline-secondary');
+            
+            // Limpiar selecciones
+            selectAllCheckbox.checked = false;
+            activoCheckboxes.forEach(cb => cb.checked = false);
+            btnNotaEntrega.disabled = true;
+        }
+    });
+    
+    // Select all functionality
+    selectAllCheckbox.addEventListener('change', function() {
+        activoCheckboxes.forEach(cb => {
+            cb.checked = this.checked;
+        });
+        updateNotaEntregaButton();
+    });
+    
+    // Individual checkbox change
+    activoCheckboxes.forEach(cb => {
+        cb.addEventListener('change', function() {
+            updateSelectAllState();
+            updateNotaEntregaButton();
+        });
+    });
+    
+    function updateSelectAllState() {
+        const checkedBoxes = document.querySelectorAll('.activo-checkbox:checked');
+        selectAllCheckbox.checked = checkedBoxes.length === activoCheckboxes.length;
+        selectAllCheckbox.indeterminate = checkedBoxes.length > 0 && checkedBoxes.length < activoCheckboxes.length;
+    }
+    
+    function updateNotaEntregaButton() {
+        const checkedBoxes = document.querySelectorAll('.activo-checkbox:checked');
+        btnNotaEntrega.disabled = checkedBoxes.length === 0;
+        
+        if (checkedBoxes.length > 0) {
+            btnNotaEntrega.innerHTML = `<i class="bi bi-clipboard-check"></i> Generar Nota (${checkedBoxes.length})`;
+        } else {
+            btnNotaEntrega.innerHTML = '<i class="bi bi-clipboard-check"></i> Generar Nota';
+        }
+    }
+    
+    // Form submission validation
+    notaEntregaForm.addEventListener('submit', function(e) {
+        const checkedBoxes = document.querySelectorAll('.activo-checkbox:checked');
+        if (checkedBoxes.length === 0) {
+            e.preventDefault();
+            alert('Debe seleccionar al menos un activo para generar la nota de entrega.');
+            return false;
+        }
+        
+        // Agregar los IDs de los activos seleccionados al formulario
+        checkedBoxes.forEach(function(checkbox) {
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'activos_seleccionados';
+            hiddenInput.value = checkbox.value;
+            notaEntregaForm.appendChild(hiddenInput);
+        });
+    });
+});
+</script>
 {% endblock %}
 

@@ -8,7 +8,8 @@
         <div class="card border-danger">
             <div class="card-header bg-danger text-white">
                 <h4 class="mb-0">
-                    <i class="bi bi-exclamation-triangle"></i> Confirmar Eliminación
+                    <img src="{% static 'core/img/Iconos/nueva_ubicacion.svg' %}" alt="Icono" style="width: 32px; height: 32px; margin-right: 10px;">
+                    Confirmar Eliminación
                 </h4>
             </div>
             <div class="card-body">
@@ -16,7 +17,7 @@
                 
                 {% if object.activos.count > 0 %}
                 <div class="alert alert-warning">
-                    <i class="bi bi-exclamation-triangle"></i>
+                    <img src="{% static 'core/img/Iconos/nueva_ubicacion.svg' %}" alt="Icono" style="width: 32px; height: 32px; margin-right: 10px;">
                     Esta ubicación tiene <strong>{{ object.activos.count }}</strong> activo(s) asociado(s).
                     No se podrá eliminar.
                 </div>

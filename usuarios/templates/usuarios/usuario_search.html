@@ -1,14 +1,15 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block title %}Usuarios - {{ block.super }}{% endblock %}
 
 {% block content %}
-<div class="form-container">
-    <h2 class="form-title">
-        <img src="/img/Iconos/perfil-usuario.svg" alt="Icono" style="width: 32px; height: 32px; margin-right: 10px;">
-        Perfil de Usuario
-    </h2>
-    <hr class="linea">
+<div class="px-5 py-4">
+    <div class="form-container">
+        <h2 class="form-title">
+            <img src="{% static 'core/img/Iconos/usuario.svg' %}" alt="Icono" style="width: 40px; height: 40px; margin-right: 15px;">
+            Usuarios
+        </h2>
+        <hr class="linea" style="border-color: #32407b;">
     
     <!-- Buscador de usuarios -->
     <div class="card mb-4">

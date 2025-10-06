@@ -4,11 +4,17 @@
 
 {% block content %}
 <div class="form-container">
-    <h2 class="form-title">
-        <img src="/img/Iconos/nueva-subcategoria.svg" alt="Icono" style="width: 32px; height: 32px; margin-right: 10px;">
-        {% if object %}Editar Subcategoría{% else %}Nueva Subcategoría{% endif %}
-    </h2>
-    <hr class="linea">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="form-title mb-0">
+            <img src="{% static 'core/img/Iconos/nueva-categoria.svg' %}" alt="Icono" style="width: 40px; height: 40px; margin-right: 15px;">
+            Subcategorías
+        </h2>
+        <a href="{% url 'activos:categoria-create' %}" class="btn btn-primary-custom">
+            <i class="bi bi-plus-circle"></i> Nueva Categoría
+        </a>
+    </div>
+    <hr class="linea" style="border-color: #32407b;">
+
     
     <form method="post">
         {% csrf_token %}

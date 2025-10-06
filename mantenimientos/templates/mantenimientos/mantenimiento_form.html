@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if object %}Editar{% else %}Nuevo{% endif %} Mantenimiento - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="px-5 py-4">
+    <div class="form-container">
+        <h2 class="form-title">
+            <img src="{% static 'core/img/Iconos/Mantenimiento.svg' %}" alt="Icono Mantenimiento" style="width: 40px; height: 40px; margin-right: 15px;">
+            {% if object %}Editar{% else %}Nuevo{% endif %} Mantenimiento
+        </h2>
+        <hr class="linea" style="border-color: #32407b;">
+
+        <!-- Información del Activo si está preseleccionado -->
+        {% if activo %}
+        <div class="alert alert-info d-flex align-items-center mb-4" role="alert">
+            <i class="bi bi-info-circle me-2" style="font-size: 1.5rem;"></i>
+            <div>
+                <strong>Activo seleccionado:</strong>
+                <a href="{% url 'activos:activo-detail' activo.pk %}" class="alert-link">
+                    {{ activo.codigo_inventario }} - {{ activo.marca }} {{ activo.modelo }}
+                </a>
+            </div>
+        </div>
+        {% endif %}
+
+        <form method="post" class="needs-validation" novalidate>
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger" role="alert">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+
+            <div class="row g-3">
+                <!-- Activo -->
+                <div class="col-md-12">
+                    <label for="{{ form.activo.id_for_label }}" class="form-label">
+                        <i class="bi bi-box"></i> {{ form.activo.label }}
+                    </label>
+                    {{ form.activo }}
+                    {% if form.activo.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.activo.errors }}
+                    </div>
+                    {% endif %}
+                    <small class="form-text text-muted">
+                        Selecciona el activo que recibirá mantenimiento.
+                    </small>
+                </div>
+
+                <!-- Técnico -->
+                <div class="col-md-6">
+                    <label for="{{ form.tecnico.id_for_label }}" class="form-label">
+                        <i class="bi bi-person-gear"></i> {{ form.tecnico.label }} <span class="text-danger">*</span>
+                    </label>
+                    {{ form.tecnico }}
+                    {% if form.tecnico.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.tecnico.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Teléfono -->
+                <div class="col-md-6">
+                    <label for="{{ form.telefono.id_for_label }}" class="form-label">
+                        <i class="bi bi-telephone"></i> {{ form.telefono.label }} <span class="text-danger">*</span>
+                    </label>
+                    {{ form.telefono }}
+                    {% if form.telefono.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.telefono.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Descripción -->
+                <div class="col-md-12">
+                    <label for="{{ form.descripcion.id_for_label }}" class="form-label">
+                        <i class="bi bi-card-text"></i> {{ form.descripcion.label }} <span class="text-danger">*</span>
+                    </label>
+                    {{ form.descripcion }}
+                    {% if form.descripcion.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.descripcion.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Costo -->
+                <div class="col-md-6">
+                    <label for="{{ form.costo.id_for_label }}" class="form-label">
+                        <i class="bi bi-currency-dollar"></i> {{ form.costo.label }} <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        {{ form.costo }}
+                    </div>
+                    {% if form.costo.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.costo.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Estado -->
+                <div class="col-md-6">
+                    <label for="{{ form.estado.id_for_label }}" class="form-label">
+                        <i class="bi bi-flag"></i> {{ form.estado.label }} <span class="text-danger">*</span>
+                    </label>
+                    {{ form.estado }}
+                    {% if form.estado.errors %}
+                    <div class="invalid-feedback d-block">
+                        {{ form.estado.errors }}
+                    </div>
+                    {% endif %}
+                    <small class="form-text text-muted">
+                        ⚠️ Al marcar "En proceso", el activo cambiará a estado "En Mantenimiento".
+                    </small>
+                </div>
+            </div>
+
+            <hr class="linea" style="border-color: #32407b;">
+
+            <!-- Botones -->
+            <div class="d-flex justify-content-between align-items-center">
+                <a href="{% if activo %}{% url 'activos:activo-detail' activo.pk %}{% else %}{% url 'mantenimientos:mantenimiento-list' %}{% endif %}" 
+                   class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Cancelar
+                </a>
+                <button type="submit" class="btn btn-custom">
+                    <i class="bi bi-save"></i> {% if object %}Actualizar{% else %}Guardar{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Deshabilitar el campo activo si viene preseleccionado
+    document.addEventListener('DOMContentLoaded', function() {
+        const activoSelect = document.getElementById('id_activo');
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        if (urlParams.has('activo_id')) {
+            activoSelect.disabled = true;
+            // Crear un campo hidden para enviar el valor
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'activo';
+            hiddenInput.value = activoSelect.value;
+            activoSelect.parentNode.appendChild(hiddenInput);
+        }
+    });
+</script>
+{% endblock %}
+

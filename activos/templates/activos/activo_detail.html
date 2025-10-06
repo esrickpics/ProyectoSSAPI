@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load activo_filters %}
 {% block title %}{{ activo.codigo_inventario }} - {{ block.super }}{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="bi bi-box-seam"></i> Detalle del Activo</h2>
+    <h2 style="color: #32407b;"><i class="bi bi-box-seam"></i> Detalle del Activo</h2>
     <div class="btn-group" role="group">
         <a href="{% url 'activos:activo-list' %}" class="btn btn-secondary">
             <i class="bi bi-arrow-left"></i> Volver
@@ -84,7 +85,7 @@
             </div>
         </div>
 
-        <div class="card">
+        <div class="card mb-3">
             <div class="card-header">
                 <h5 class="mb-0"><i class="bi bi-clock-history"></i> Información de Auditoría</h5>
             </div>
@@ -99,6 +100,76 @@
                         <p class="mb-0">{{ activo.fecha_actualizacion|date:"d/m/Y H:i" }}</p>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Historial de Mantenimientos -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-tools"></i> Historial de Mantenimientos</h5>
+                <a href="{% url 'mantenimientos:mantenimiento-create' %}?activo_id={{ activo.pk }}" class="btn btn-sm btn-custom">
+                    <i class="bi bi-plus-circle"></i> Agregar
+                </a>
+            </div>
+            <div class="card-body">
+                {% if activo.mantenimientos.all %}
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Técnico</th>
+                                <th>Costo</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for mantenimiento in activo.mantenimientos.all %}
+                            <tr>
+                                <td>{{ mantenimiento.fecha|date:"d/m/Y" }}</td>
+                                <td>{{ mantenimiento.tecnico }}</td>
+                                <td>${{ mantenimiento.costo|floatformat:2 }}</td>
+                                <td>
+                                    {% if mantenimiento.estado == 'EP' %}
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="bi bi-hourglass-split"></i> En Proceso
+                                    </span>
+                                    {% else %}
+                                    <span class="badge bg-success">
+                                        <i class="bi bi-check-circle"></i> Finalizado
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'mantenimientos:mantenimiento-detail' mantenimiento.pk %}" 
+                                       class="btn btn-sm btn-outline-primary" title="Ver detalle">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between">
+                    <strong>Total mantenimientos:</strong>
+                    <span class="badge bg-primary">{{ activo.mantenimientos.count }}</span>
+                </div>
+                <div class="d-flex justify-content-between mt-2">
+                    <strong>Costo total:</strong>
+                    <span class="text-primary fw-bold">${{ activo.mantenimientos.all|sum_costo|floatformat:2 }}</span>
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-4">
+                    <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+                    <p class="mt-2 mb-0">No hay mantenimientos registrados</p>
+                    <a href="{% url 'mantenimientos:mantenimiento-create' %}?activo_id={{ activo.pk }}" class="btn btn-sm btn-custom mt-3">
+                        <i class="bi bi-plus-circle"></i> Agregar Primer Mantenimiento
+                    </a>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -134,7 +205,7 @@
 
         <div class="card border-danger">
             <div class="card-header bg-danger text-white">
-                <h5 class="mb-0"><i class="bi bi-trash"></i> Zona Peligrosa</h5>
+                <h5 class="mb-0"><i class="bi bi-trash"></i> Eliminar Activo</h5>
             </div>
             <div class="card-body">
                 <p class="text-muted">Esta acción no se puede deshacer.</p>
@@ -143,6 +214,7 @@
                 </a>
             </div>
         </div>
+    </div>
     </div>
 </div>
 {% endblock %}

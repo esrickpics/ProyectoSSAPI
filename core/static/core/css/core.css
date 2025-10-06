@@ -31,6 +31,7 @@ html {
     align-items: flex-start;
     padding-top: 20px;
     padding-right: 80px;
+    margin-bottom: 30px;
 }
 
 .logoheader {
@@ -50,10 +51,10 @@ html {
 }
 
 .form-title {
-    font-size: 24px;
+    font-size: 28px;
     font-weight: bold;
     color: var(--e-global-color-moradopaldaca);
-    margin-bottom: 20px;
+    margin-bottom: 0;
     display: flex;
     align-items: center;
 }
@@ -144,7 +145,7 @@ footer a:hover {
 }
 
 .Btn {
-    text-decoration: none;
+    text-decoration:none;
     font-size: 18px;
     color: #000;
     font-family: inherit;
@@ -159,31 +160,30 @@ footer a:hover {
     transition-property: color;
 }
 
-.Btn:focus,
-.Btn:hover {
-    color: #000;
-}
+    .Btn:focus,
+    .Btn:hover {
+        color: #000;
+    }
 
-.Btn:focus:after,
-.Btn:hover:after {
-    width: 100%;
-    left: 0%;
-}
+        .Btn:focus:after,
+        .Btn:hover:after {
+            width: 100%;
+            left: 0%;
+        }
 
-.Btn:after {
-    content: "";
-    pointer-events: none;
-    bottom: -2px;
-    left: 50%;
-    position: absolute;
-    width: 0%;
-    height: 2px;
-    background-color: #000;
-    transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
-    transition-duration: 400ms;
-    transition-property: width, left;
-}
-
+    .Btn:after {
+        content: "";
+        pointer-events: none;
+        bottom: -2px;
+        left: 50%;
+        position: absolute;
+        width: 0%;
+        height: 2px;
+        background-color: #000;
+        transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
+        transition-duration: 400ms;
+        transition-property: width, left;
+    }
 /* Estilos de las tarjetas de estadísticas */
 .stat-icon {
     font-size: 36px;

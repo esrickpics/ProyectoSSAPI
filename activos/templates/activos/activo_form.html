@@ -3,12 +3,13 @@
 {% block title %}{{ object|yesno:"Editar,Crear" }} Activo - {{ block.super }}{% endblock %}
 
 {% block content %}
-<div class="form-container">
-    <h2 class="form-title">
-        <img src="{% static 'core/img/Iconos/activos.svg' %}" alt="Icono" style="width: 32px; height: 32px; margin-right: 10px;">
-        {% if object %}Editar Activo{% else %}Crear Nuevo Activo{% endif %}
-    </h2>
-    <hr class="linea">
+<div class="px-5 py-4">
+    <div class="form-container">
+        <h2 class="form-title">
+            <img src="{% static 'core/img/Iconos/activos.svg' %}" alt="Icono" style="width: 40px; height: 40px; margin-right: 15px;">
+            {% if object %}Editar Activo{% else %}Crear Nuevo Activo{% endif %}
+        </h2>
+        <hr class="linea" style="border-color: #32407b;">
     <form method="post">
         {% csrf_token %}
         
@@ -97,7 +98,12 @@
                             <label for="{{ form.ubicacion.id_for_label }}" class="form-label">
                                 Ubicación <span class="text-danger">*</span>
                             </label>
-                            {{ form.ubicacion }}
+                            <div class="input-group">
+                                {{ form.ubicacion }}
+                                <button type="button" class="btn btn-outline-secondary" onclick="window.open('{% url 'activos:ubicacion-create' %}', '_blank')">
+                                    <i class="bi bi-plus"></i>
+                                </button>
+                            </div>
                             {% if form.ubicacion.errors %}
                             <div class="invalid-feedback d-block">
                                 {{ form.ubicacion.errors }}

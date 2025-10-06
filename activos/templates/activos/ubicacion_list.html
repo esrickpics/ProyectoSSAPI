@@ -6,13 +6,14 @@
 <div class="form-container">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="form-title">
-            <img src="/img/Iconos/ubicaciones.svg" alt="Icono" style="width: 32px; height: 32px; margin-right: 10px;">
+            <img src="{% static 'core/img/Iconos/nueva_ubicacion.svg' %}" alt="Icono" style="width: 32px; height: 32px; margin-right: 10px;">
             Ubicaciones
         </h2>
         <a href="{% url 'activos:ubicacion-create' %}" class="btn btn-primary-custom">
             <i class="bi bi-plus-circle"></i> Nueva Ubicación
         </a>
     </div>
+    <hr class="linea" style="border-color: #32407b;">
 
 {% if ubicaciones %}
 <div class="card">

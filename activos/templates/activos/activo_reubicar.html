@@ -30,7 +30,12 @@
                         <label for="{{ form.ubicacion.id_for_label }}" class="form-label">
                             Nueva Ubicación <span class="text-danger">*</span>
                         </label>
-                        {{ form.ubicacion }}
+                        <div class="input-group">
+                            {{ form.ubicacion }}
+                            <button type="button" class="btn btn-outline-secondary" onclick="window.open('{% url 'activos:ubicacion-create' %}', '_blank')">
+                                <i class="bi bi-plus"></i>
+                            </button>
+                        </div>
                         {% if form.ubicacion.errors %}
                         <div class="invalid-feedback d-block">
                             {{ form.ubicacion.errors }}

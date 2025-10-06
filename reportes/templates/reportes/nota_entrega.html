@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nota de Entrega - Consorcio PALDACA</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #32407b;
+            padding-bottom: 20px;
+        }
+        
+        .logo-placeholder {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        .company-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #32407b;
+            margin: 10px 0;
+        }
+        
+        .report-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #32407b;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .report-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid #32407b;
+        }
+        
+        .info-row {
+            margin-bottom: 5px;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: #32407b;
+        }
+        
+        .table-container {
+            margin: 20px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            font-size: 10px;
+        }
+        
+        th {
+            background-color: #32407b;
+            color: white;
+            padding: 8px;
+            text-align: left;
+            font-weight: bold;
+            border: 1px solid #ddd;
+        }
+        
+        td {
+            padding: 6px 8px;
+            border: 1px solid #ddd;
+            vertical-align: top;
+        }
+        
+        .status-badge {
+            padding: 2px 6px;
+            font-size: 9px;
+            font-weight: bold;
+        }
+        
+        .status-activo {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-inactivo {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-mantenimiento {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .signature-section {
+            margin-top: 40px;
+            page-break-inside: avoid;
+        }
+        
+        .signature-box {
+            width: 45%;
+            margin: 20px 2.5%;
+            text-align: center;
+            border: 1px solid #ddd;
+            padding: 20px;
+            min-height: 100px;
+            display: inline-block;
+            vertical-align: top;
+        }
+        
+        .signature-line {
+            border-bottom: 1px solid #333;
+            margin-bottom: 5px;
+            height: 30px;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 10px;
+            color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+        
+        .no-data {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 40px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Encabezado -->
+    <div class="header">
+        <!-- Logo de la empresa - TODO: Reemplazar con el logo oficial de PALDACA -->
+        <div class="logo-placeholder" style="text-align: center; margin-bottom: 10px;">
+            <div style="display: inline-block; background-color: #32407b; color: white; padding: 10px 20px; border-radius: 5px; font-weight: bold;">
+                LOGO PALDACA
+            </div>
+        </div>
+        <div class="company-name">Consorcio PALDACA</div>
+        <div style="font-size: 14px; color: #666;">Sistema de Gestión de Activos</div>
+    </div>
+
+    <!-- Título del documento -->
+    <div class="report-title">
+        🖋 Nota de Entrega de Activos
+    </div>
+
+    <!-- Información del documento -->
+    <div class="report-info">
+        <div class="info-row">
+            <span class="info-label">Fecha de entrega:</span>
+            <span>{{ fecha_entrega }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Responsable de entrega:</span>
+            <span>{{ responsable_entrega|default:"Administrador del Sistema" }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Total de activos:</span>
+            <span>{{ activos|length }}</span>
+        </div>
+        {% if observaciones %}
+        <div class="info-row">
+            <span class="info-label">Observaciones:</span>
+            <span>{{ observaciones }}</span>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Tabla de activos -->
+    <div class="table-container">
+        {% if activos %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Categoría</th>
+                    <th>Subcategoría</th>
+                    <th>Marca</th>
+                    <th>Modelo</th>
+                    <th>Serial</th>
+                    <th>Ubicación</th>
+                    <th>Estado</th>
+                    <th>Usuario Asignado</th>
+                    <th>Observaciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for activo in activos %}
+                <tr>
+                    <td><strong>{{ activo.codigo_inventario }}</strong></td>
+                    <td>{{ activo.subcategoria.categoria.nombre }}</td>
+                    <td>{{ activo.subcategoria.nombre }}</td>
+                    <td>{{ activo.marca }}</td>
+                    <td>{{ activo.modelo }}</td>
+                    <td>{{ activo.numero_serial|default:"N/A" }}</td>
+                    <td>{{ activo.ubicacion.nombre }}</td>
+                    <td>
+                        <span class="status-badge 
+                            {% if activo.estado == 'AC' %}status-activo
+                            {% elif activo.estado == 'IN' %}status-inactivo
+                            {% else %}status-mantenimiento{% endif %}">
+                            {{ activo.get_estado_display }}
+                        </span>
+                    </td>
+                    <td>{{ activo.usuario_asignado|default:"Sin asignar" }}</td>
+                    <td>{{ activo.observaciones|default:"-"|truncatewords:10 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="no-data">
+            <p>No se encontraron activos para la entrega.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Sección de firmas -->
+    <div class="signature-section">
+        <h3 style="text-align: center; color: #32407b; margin-bottom: 30px;">Firmas de Entrega y Recepción</h3>
+        
+        <div class="signature-box">
+            <h4 style="margin-bottom: 20px; color: #32407b;">ENTREGA</h4>
+            <p style="margin-bottom: 10px;"><strong>Responsable:</strong> {{ responsable_entrega|default:"Administrador del Sistema" }}</p>
+            <div class="signature-line"></div>
+            <p style="margin-top: 5px; font-size: 10px;">Firma y sello</p>
+            <div style="margin-top: 15px;">
+                <p><strong>Fecha:</strong> _______________</p>
+            </div>
+        </div>
+
+        <div class="signature-box">
+            <h4 style="margin-bottom: 20px; color: #32407b;">RECEPCIÓN</h4>
+            <p style="margin-bottom: 10px;"><strong>Recibe:</strong> _____________________</p>
+            <div class="signature-line"></div>
+            <p style="margin-top: 5px; font-size: 10px;">Firma y sello</p>
+            <div style="margin-top: 15px;">
+                <p><strong>Fecha:</strong> _______________</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pie de página -->
+    <div class="footer">
+        <p>Este documento fue generado automáticamente por el Sistema de Gestión de Activos de Consorcio PALDACA</p>
+        <p>Fecha: {{ fecha_entrega }} | Total de activos entregados: {{ activos|length }}</p>
+    </div>
+</body>
+</html>

@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import TemplateView
-from activos.models import Activo
+from activos.models import Activo, Categoria, Ubicacion
+from django.db.models import Count
 
 
 class HomeView(TemplateView):
@@ -9,9 +10,18 @@ class HomeView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         
-        # Obtener estadísticas
+        # Estadísticas generales
         context['total_activos'] = Activo.objects.count()
         context['activos_mantenimiento'] = Activo.objects.filter(estado='EM').count()
-        context['total_reportes'] = 0  # Por ahora en 0, se actualizará cuando se implemente reportes
+        
+        # Activos por categoría
+        context['activos_por_categoria'] = Categoria.objects.annotate(
+            total=Count('subcategorias__activos')
+        ).order_by('-total')[:5]
+        
+        # Activos por ubicación
+        context['activos_por_ubicacion'] = Ubicacion.objects.annotate(
+            total=Count('activos')
+        ).order_by('-total')[:5]
         
         return context

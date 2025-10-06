@@ -1,0 +1,249 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mantenimientos - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="px-5 py-4">
+    <div class="form-container">
+        <h2 class="form-title mb-0">
+            <img src="{% static 'core/img/Iconos/Mantenimiento.svg' %}" alt="Icono Mantenimiento" style="width: 40px; height: 40px; margin-right: 15px;">
+            Gestión de Mantenimientos
+        </h2>
+        <hr class="linea" style="border-color: #32407b;">
+
+        <!-- Dashboard de Estadísticas -->
+        <div class="mb-4">
+            <h5 class="mb-3" style="color: #32407b;"><i class="bi bi-bar-chart"></i> Resumen</h5>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <div class="stat-item bgcolorazul p-3 text-center">
+                        <div class="stat-icon"><i class="bi bi-tools"></i></div>
+                        <p class="stat-label mb-1">Total Mantenimientos</p>
+                        <p class="stat-number mb-0">{{ total_mantenimientos }}</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-item bgcolorazul p-3 text-center">
+                        <div class="stat-icon"><i class="bi bi-hourglass-split"></i></div>
+                        <p class="stat-label mb-1">En Proceso</p>
+                        <p class="stat-number mb-0">{{ mantenimientos_en_proceso }}</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-item bgcolorazul p-3 text-center">
+                        <div class="stat-icon"><i class="bi bi-check-circle"></i></div>
+                        <p class="stat-label mb-1">Finalizados</p>
+                        <p class="stat-number mb-0">{{ mantenimientos_finalizados }}</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-item bgcolorazul p-3 text-center">
+                        <div class="stat-icon"><i class="bi bi-currency-dollar"></i></div>
+                        <p class="stat-label mb-1">Costo Total</p>
+                        <p class="stat-number mb-0">${{ costo_total|floatformat:2 }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="linea" style="border-color: #32407b;">
+
+        <!-- Filtros -->
+        <div class="filter-container mb-4">
+            <form method="get" id="filterForm" class="row g-3">
+                <div class="col-md-3">
+                    <label for="id_estado" class="form-label"><i class="bi bi-flag"></i> Estado</label>
+                    {{ filter_form.estado }}
+                </div>
+                <div class="col-md-3">
+                    <label for="id_activo" class="form-label"><i class="bi bi-box"></i> Activo</label>
+                    {{ filter_form.activo }}
+                </div>
+                <div class="col-md-2">
+                    <label for="id_mes" class="form-label"><i class="bi bi-calendar-month"></i> Mes</label>
+                    {{ filter_form.mes }}
+                </div>
+                <div class="col-md-2">
+                    <label for="id_año" class="form-label"><i class="bi bi-calendar"></i> Año</label>
+                    {{ filter_form.año }}
+                </div>
+                <div class="col-md-2">
+                    <label for="id_buscar" class="form-label"><i class="bi bi-search"></i> Buscar</label>
+                    {{ filter_form.buscar }}
+                </div>
+                <div class="col-md-12 d-flex gap-2">
+                    <button type="submit" class="btn btn-custom">
+                        <i class="bi bi-funnel"></i> Filtrar
+                    </button>
+                    <a href="{% url 'mantenimientos:mantenimiento-list' %}" class="btn btn-secondary">
+                        <i class="bi bi-x-circle"></i> Limpiar
+                    </a>
+                    <a href="{% url 'mantenimientos:mantenimiento-create' %}" class="btn btn-custom ms-auto">
+                        <i class="bi bi-plus-circle"></i> Nuevo Mantenimiento
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Tabla de Mantenimientos -->
+        <div class="table-responsive">
+            <table class="table table-hover table-striped">
+                <thead class="bgcolor text-white">
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Activo</th>
+                        <th>Técnico</th>
+                        <th>Teléfono</th>
+                        <th>Descripción</th>
+                        <th>Costo</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mantenimiento in mantenimientos %}
+                    <tr>
+                        <td>{{ mantenimiento.fecha|date:"d/m/Y" }}</td>
+                        <td>
+                            <a href="{% url 'activos:activo-detail' mantenimiento.activo.pk %}" class="link-info">
+                                {{ mantenimiento.activo.codigo_inventario }}
+                            </a>
+                        </td>
+                        <td>{{ mantenimiento.tecnico }}</td>
+                        <td>{{ mantenimiento.telefono }}</td>
+                        <td>{{ mantenimiento.descripcion|truncatewords:10 }}</td>
+                        <td>${{ mantenimiento.costo|floatformat:2 }}</td>
+                        <td>
+                            {% if mantenimiento.estado == 'EP' %}
+                                <span class="badge bg-warning text-dark">
+                                    <i class="bi bi-hourglass-split"></i> En Proceso
+                                </span>
+                            {% else %}
+                                <span class="badge bg-success">
+                                    <i class="bi bi-check-circle"></i> Finalizado
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <a href="{% url 'mantenimientos:mantenimiento-detail' mantenimiento.pk %}" 
+                                   class="btn btn-outline-primary" title="Ver detalle">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                {% if mantenimiento.estado == 'EP' %}
+                                <a href="{% url 'mantenimientos:mantenimiento-finalizar' mantenimiento.pk %}" 
+                                   class="btn btn-outline-success" 
+                                   title="Finalizar mantenimiento"
+                                   onclick="return confirm('¿Finalizar este mantenimiento? Se aplicará el costo de ${{ mantenimiento.costo|floatformat:2 }}');">
+                                    <i class="bi bi-check-circle"></i>
+                                </a>
+                                {% endif %}
+                                <a href="{% url 'mantenimientos:mantenimiento-update' mantenimiento.pk %}" 
+                                   class="btn btn-outline-secondary" title="Editar">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">
+                            <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                            <p class="mt-2">No se encontraron mantenimientos.</p>
+                            <a href="{% url 'mantenimientos:mantenimiento-create' %}" class="btn btn-custom">
+                                <i class="bi bi-plus-circle"></i> Crear Primer Mantenimiento
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Dashboard de Costos -->
+        <div class="mt-4 mb-4">
+            <h5 class="mb-3" style="color: #32407b;"><i class="bi bi-cash-stack"></i> Resumen de Costos</h5>
+            
+            <div class="row g-3 mb-3">
+                <!-- Costos del período filtrado -->
+                <div class="col-md-6">
+                    <div class="info-card">
+                        <h6 style="color: var(--e-global-color-moradopaldaca);">
+                            <i class="bi bi-funnel"></i> Costos del Filtro Actual
+                        </h6>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span><i class="bi bi-hourglass-split text-warning"></i> En Proceso:</span>
+                            <strong>${{ costo_en_proceso|floatformat:2 }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span><i class="bi bi-check-circle text-success"></i> Finalizados:</span>
+                            <strong>${{ costo_finalizado|floatformat:2 }}</strong>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            <strong>Total Filtrado:</strong>
+                            <strong class="text-primary">${{ costo_total|floatformat:2 }}</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Estadísticas temporales -->
+                <div class="col-md-6">
+                    <div class="info-card">
+                        <h6 style="color: var(--e-global-color-moradopaldaca);">
+                            <i class="bi bi-calendar-check"></i> Gastos Reales (Solo Finalizados)
+                        </h6>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span><i class="bi bi-calendar-month text-info"></i> Gastos este mes:</span>
+                            <strong class="text-info">${{ gastos_mes_actual|floatformat:2 }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span><i class="bi bi-calendar text-primary"></i> Total anual:</span>
+                            <strong class="text-primary">${{ gastos_año_actual|floatformat:2 }}</strong>
+                        </div>
+                        <hr>
+                        <p class="mb-0 text-muted small">
+                            <i class="bi bi-info-circle"></i> Solo se cuentan mantenimientos finalizados. 
+                            Los costos "En Proceso" son estimaciones.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="linea" style="border-color: #32407b;">
+
+        <!-- Paginación -->
+        {% if is_paginated %}
+        <nav aria-label="Paginación" class="pagination-container">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Primera</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Anterior</a>
+                </li>
+                {% endif %}
+                
+                <li class="page-item active">
+                    <span class="page-link">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+                </li>
+                
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Siguiente</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Última</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

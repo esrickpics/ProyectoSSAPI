@@ -4,7 +4,7 @@ from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, DeleteView
 )
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Q, Count
 from .models import Categoria, SubCategoria, Ubicacion, Activo, HistorialMovimiento
 from .forms import (
     CategoriaForm, SubCategoriaForm, UbicacionForm, 
@@ -212,18 +212,15 @@ class ActivoListView(ListView):
         context['total_activos'] = self.get_queryset().count()
         
         # Estadísticas para el dashboard
-        from django.db.models import Count
-        from .models import Categoria, Ubicacion
-        
-        # Total de activos por categoría
+        # Total de activos por categoría (top 5 con activos)
         context['activos_por_categoria'] = Categoria.objects.annotate(
             total_activos=Count('subcategorias__activos')
-        ).order_by('-total_activos')
+        ).filter(total_activos__gt=0).order_by('-total_activos')[:5]
         
-        # Total de activos por ubicación
+        # Total de activos por ubicación (top 5 con activos)
         context['activos_por_ubicacion'] = Ubicacion.objects.annotate(
             total_activos=Count('activos')
-        ).order_by('-total_activos')
+        ).filter(total_activos__gt=0).order_by('-total_activos')[:5]
         
         # Estadísticas generales
         context['total_categorias'] = Categoria.objects.count()
