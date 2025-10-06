@@ -5,7 +5,7 @@ from django.views.generic import (
 )
 from django.contrib import messages
 from django.db.models import Q
-from .models import Categoria, SubCategoria, Ubicacion, Activo
+from .models import Categoria, SubCategoria, Ubicacion, Activo, HistorialMovimiento
 from .forms import (
     CategoriaForm, SubCategoriaForm, UbicacionForm, 
     ActivoForm, ActivoFilterForm, ReasignarActivoForm, ReubicarActivoForm
@@ -49,6 +49,13 @@ class CategoriaDeleteView(DeleteView):
     success_url = reverse_lazy('activos:categoria-list')
     
     def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        
+        # Verificar si tiene subcategorías asociadas
+        if self.object.subcategorias.exists():
+            messages.error(self.request, f'No se puede eliminar la categoría "{self.object.nombre}" porque tiene subcategorías asociadas.')
+            return redirect('activos:categoria-list')
+        
         messages.success(self.request, 'Categoría eliminada exitosamente.')
         return super().delete(request, *args, **kwargs)
 
@@ -102,6 +109,13 @@ class SubCategoriaDeleteView(DeleteView):
     success_url = reverse_lazy('activos:subcategoria-list')
     
     def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        
+        # Verificar si tiene activos asociados
+        if self.object.activos.exists():
+            messages.error(self.request, f'No se puede eliminar la subcategoría "{self.object}" porque tiene activos asociados.')
+            return redirect('activos:subcategoria-list')
+        
         messages.success(self.request, 'Subcategoría eliminada exitosamente.')
         return super().delete(request, *args, **kwargs)
 
@@ -143,6 +157,13 @@ class UbicacionDeleteView(DeleteView):
     success_url = reverse_lazy('activos:ubicacion-list')
     
     def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        
+        # Verificar si tiene activos asociados
+        if self.object.activos.exists():
+            messages.error(self.request, f'No se puede eliminar la ubicación "{self.object.nombre}" porque tiene activos asociados.')
+            return redirect('activos:ubicacion-list')
+        
         messages.success(self.request, 'Ubicación eliminada exitosamente.')
         return super().delete(request, *args, **kwargs)
 
@@ -189,6 +210,26 @@ class ActivoListView(ListView):
         context = super().get_context_data(**kwargs)
         context['filter_form'] = ActivoFilterForm(self.request.GET or None)
         context['total_activos'] = self.get_queryset().count()
+        
+        # Estadísticas para el dashboard
+        from django.db.models import Count
+        from .models import Categoria, Ubicacion
+        
+        # Total de activos por categoría
+        context['activos_por_categoria'] = Categoria.objects.annotate(
+            total_activos=Count('subcategorias__activos')
+        ).order_by('-total_activos')
+        
+        # Total de activos por ubicación
+        context['activos_por_ubicacion'] = Ubicacion.objects.annotate(
+            total_activos=Count('activos')
+        ).order_by('-total_activos')
+        
+        # Estadísticas generales
+        context['total_categorias'] = Categoria.objects.count()
+        context['total_ubicaciones'] = Ubicacion.objects.count()
+        context['total_activos_sistema'] = Activo.objects.count()
+        
         return context
 
 
@@ -273,3 +314,16 @@ def reubicar_activo(request, pk):
         'form': form,
         'activo': activo
     })
+
+
+class ActivoHistorialView(DetailView):
+    """Vista para mostrar el historial de movimientos de un activo"""
+    model = Activo
+    template_name = 'activos/activo_historial.html'
+    context_object_name = 'activo'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        activo = self.get_object()
+        context['historial'] = activo.historial_movimientos.all().order_by('-fecha_movimiento')
+        return context

@@ -1,57 +1,57 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block title %}{{ object|yesno:"Editar,Crear" }} Subcategoría - {{ block.super }}{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="mb-0">
-                    <i class="bi bi-folder2"></i>
-                    {% if object %}Editar Subcategoría{% else %}Nueva Subcategoría{% endif %}
-                </h4>
+<div class="form-container">
+    <h2 class="form-title">
+        <img src="/img/Iconos/nueva-subcategoria.svg" alt="Icono" style="width: 32px; height: 32px; margin-right: 10px;">
+        {% if object %}Editar Subcategoría{% else %}Nueva Subcategoría{% endif %}
+    </h2>
+    <hr class="linea">
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+            <label for="{{ form.nombre.id_for_label }}" class="form-label">
+                Nombre <span class="text-danger">*</span>
+            </label>
+            {{ form.nombre }}
+            {% if form.nombre.errors %}
+            <div class="invalid-feedback d-block">
+                {{ form.nombre.errors }}
             </div>
-            <div class="card-body">
-                <form method="post">
-                    {% csrf_token %}
-                    
-                    <div class="mb-3">
-                        <label for="{{ form.nombre.id_for_label }}" class="form-label">
-                            Nombre <span class="text-danger">*</span>
-                        </label>
-                        {{ form.nombre }}
-                        {% if form.nombre.errors %}
-                        <div class="invalid-feedback d-block">
-                            {{ form.nombre.errors }}
-                        </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="{{ form.categoria.id_for_label }}" class="form-label">
-                            Categoría <span class="text-danger">*</span>
-                        </label>
-                        {{ form.categoria }}
-                        {% if form.categoria.errors %}
-                        <div class="invalid-feedback d-block">
-                            {{ form.categoria.errors }}
-                        </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <a href="{% url 'activos:subcategoria-list' %}" class="btn btn-secondary">
-                            <i class="bi bi-x-circle"></i> Cancelar
-                        </a>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-save"></i> Guardar
-                        </button>
-                    </div>
-                </form>
-            </div>
+            {% endif %}
         </div>
-    </div>
+
+        <div class="mb-3">
+            <label for="{{ form.categoria.id_for_label }}" class="form-label">
+                Categoría <span class="text-danger">*</span>
+            </label>
+            <div class="input-group">
+                {{ form.categoria }}
+                <button type="button" class="btn btn-outline-secondary" onclick="window.open('{% url 'activos:categoria-create' %}', '_blank')">
+                    <i class="bi bi-plus"></i>
+                </button>
+            </div>
+            {% if form.categoria.errors %}
+            <div class="invalid-feedback d-block">
+                {{ form.categoria.errors }}
+            </div>
+            {% endif %}
+        </div>
+
+        <hr>
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <a href="{% url 'activos:subcategoria-list' %}" class="btn btn-secondary">
+                <i class="bi bi-x-circle"></i> Cancelar
+            </a>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save"></i> Guardar
+            </button>
+        </div>
+    </form>
 </div>
 {% endblock %}
 

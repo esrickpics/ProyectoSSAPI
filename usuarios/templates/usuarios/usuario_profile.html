@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ usuario.nombre_completo }} - Perfil - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <!-- Información del usuario -->
+    <div class="card mb-4" style="background-color: var(--e-global-color-moradopaldaca); color: white;">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-2">
+                    <div class="user-avatar-large text-center">
+                        <i class="bi bi-person-circle" style="font-size: 5rem;"></i>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <h2 class="mb-2">{{ usuario.nombre_completo }}</h2>
+                    <h5 class="mb-3">{{ usuario.cargo|default:"Sin cargo asignado" }}</h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-2">
+                                <i class="bi bi-envelope me-2"></i>
+                                <strong>Correo:</strong> {{ usuario.email|default:"No especificado" }}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-2">
+                                <i class="bi bi-telephone me-2"></i>
+                                <strong>Teléfono:</strong> {{ usuario.telefono|default:"No especificado" }}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-2">
+                                <i class="bi bi-card-text me-2"></i>
+                                <strong>Identificación:</strong> {{ usuario.identificacion }}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-2">
+                                <i class="bi bi-building me-2"></i>
+                                <strong>Departamento:</strong> {{ usuario.departamento|default:"No especificado" }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2 text-end">
+                    <div class="user-actions">
+                        <a href="{% url 'usuarios:usuario-update' usuario.pk %}" class="btn btn-light btn-sm mb-2">
+                            <i class="bi bi-pencil"></i> Editar
+                        </a>
+                        <br>
+                        <a href="{% url 'usuarios:usuario-delete' usuario.pk %}" class="btn btn-outline-light btn-sm">
+                            <i class="bi bi-trash"></i> Eliminar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activos asignados -->
+    <div class="card">
+        <div class="card-header">
+            <h4 class="mb-0">
+                <i class="bi bi-box-seam"></i> Activos Asignados
+                <span class="badge bg-primary ms-2">{{ activos_asignados.count }}</span>
+            </h4>
+        </div>
+        <div class="card-body">
+            {% if activos_asignados %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Descripción</th>
+                                <th>Categoría</th>
+                                <th>Ubicación</th>
+                                <th>Estado</th>
+                                <th class="text-end">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for activo in activos_asignados %}
+                            <tr>
+                                <td>
+                                    <strong>{{ activo.codigo_inventario }}</strong>
+                                </td>
+                                <td>
+                                    {{ activo.marca }} {{ activo.modelo }}
+                                    {% if activo.numero_serial %}
+                                        <br><small class="text-muted">S/N: {{ activo.numero_serial }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">
+                                        {{ activo.subcategoria.categoria.nombre }}
+                                    </span>
+                                    <br>
+                                    <small class="text-muted">{{ activo.subcategoria.nombre }}</small>
+                                </td>
+                                <td>
+                                    <i class="bi bi-geo-alt"></i> {{ activo.ubicacion.nombre }}
+                                </td>
+                                <td>
+                                    {% if activo.estado == 'AC' %}
+                                        <span class="badge bg-success">Activo</span>
+                                    {% elif activo.estado == 'IN' %}
+                                        <span class="badge bg-secondary">Inactivo</span>
+                                    {% elif activo.estado == 'EM' %}
+                                        <span class="badge bg-warning">En Mantenimiento</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <a href="{% url 'activos:activo-detail' activo.pk %}" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> Ver
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-4">
+                    <i class="bi bi-box-seam" style="font-size: 3rem; color: #ccc;"></i>
+                    <h5 class="mt-3 text-muted">No tiene activos asignados</h5>
+                    <p class="text-muted">Este usuario no tiene ningún activo asignado actualmente.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Botones de navegación -->
+    <div class="text-center mt-4">
+        <a href="{% url 'usuarios:usuario-search' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Volver a Búsqueda
+        </a>
+    </div>
+</div>
+
+<style>
+.user-avatar-large {
+    text-align: center;
+}
+
+.user-actions .btn {
+    width: 100%;
+}
+
+.card-header {
+    background-color: var(--e-global-color-azulmarino);
+    color: white;
+}
+
+.table th {
+    background-color: #f8f9fa;
+    border-top: none;
+}
+</style>
+{% endblock %}

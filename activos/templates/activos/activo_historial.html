@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% block title %}Historial - {{ activo.codigo_inventario }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="form-title">
+            <img src="{% static 'core/img/Iconos/activos.svg' %}" alt="Icono" style="width: 32px; height: 32px; margin-right: 10px;">
+            Historial de Movimientos
+        </h2>
+        <a href="{% url 'activos:activo-detail' activo.pk %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Volver al Activo
+        </a>
+    </div>
+    
+    <!-- Información del activo -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i class="bi bi-box-seam"></i> {{ activo.codigo_inventario }} - {{ activo.marca }} {{ activo.modelo }}
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Categoría:</strong> {{ activo.subcategoria.categoria.nombre }} - {{ activo.subcategoria.nombre }}</p>
+                    <p><strong>Ubicación:</strong> {{ activo.ubicacion.nombre }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Usuario Asignado:</strong> {{ activo.usuario_asignado|default:"Sin asignar" }}</p>
+                    <p><strong>Estado:</strong> 
+                        {% if activo.estado == 'AC' %}
+                            <span class="badge bg-success">Activo</span>
+                        {% elif activo.estado == 'IN' %}
+                            <span class="badge bg-secondary">Inactivo</span>
+                        {% else %}
+                            <span class="badge bg-warning">En Mantenimiento</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Historial de movimientos -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i class="bi bi-clock-history"></i> Movimientos Registrados
+            </h5>
+        </div>
+        <div class="card-body">
+            {% if historial %}
+                <div class="timeline">
+                    {% for movimiento in historial %}
+                    <div class="timeline-item">
+                        <div class="timeline-marker">
+                            {% if movimiento.tipo_movimiento == 'CR' %}
+                                <i class="bi bi-plus-circle text-success"></i>
+                            {% elif movimiento.tipo_movimiento == 'AC' %}
+                                <i class="bi bi-pencil text-primary"></i>
+                            {% elif movimiento.tipo_movimiento == 'RE' %}
+                                <i class="bi bi-person-check text-info"></i>
+                            {% elif movimiento.tipo_movimiento == 'RU' %}
+                                <i class="bi bi-geo-alt text-warning"></i>
+                            {% elif movimiento.tipo_movimiento == 'CE' %}
+                                <i class="bi bi-arrow-repeat text-secondary"></i>
+                            {% elif movimiento.tipo_movimiento == 'EL' %}
+                                <i class="bi bi-trash text-danger"></i>
+                            {% endif %}
+                        </div>
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <h6 class="mb-1">{{ movimiento.get_tipo_movimiento_display }}</h6>
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar"></i> {{ movimiento.fecha_movimiento|date:"d/m/Y H:i" }}
+                                    {% if movimiento.usuario %}
+                                        | <i class="bi bi-person"></i> {{ movimiento.usuario.get_full_name|default:movimiento.usuario.username }}
+                                    {% endif %}
+                                </small>
+                            </div>
+                            <div class="timeline-body">
+                                <p class="mb-2">{{ movimiento.descripcion }}</p>
+                                
+                                {% if movimiento.campo_modificado and movimiento.valor_anterior and movimiento.valor_nuevo %}
+                                <div class="alert alert-light p-2">
+                                    <small>
+                                        <strong>Campo modificado:</strong> {{ movimiento.campo_modificado }}<br>
+                                        <strong>Valor anterior:</strong> <span class="text-danger">{{ movimiento.valor_anterior }}</span><br>
+                                        <strong>Valor nuevo:</strong> <span class="text-success">{{ movimiento.valor_nuevo }}</span>
+                                    </small>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-4">
+                    <i class="bi bi-clock-history" style="font-size: 3rem; color: #ccc;"></i>
+                    <h5 class="mt-3 text-muted">Sin historial de movimientos</h5>
+                    <p class="text-muted">Este activo no tiene movimientos registrados.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e9ecef;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -22px;
+    top: 5px;
+    width: 30px;
+    height: 30px;
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+
+.timeline-content {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 3px solid var(--e-global-color-moradopaldaca);
+}
+
+.timeline-header h6 {
+    color: var(--e-global-color-moradopaldaca);
+    font-weight: 600;
+}
+
+.timeline-body {
+    margin-top: 10px;
+}
+</style>
+{% endblock %}

@@ -36,7 +36,7 @@
                         <a class="nav-link" href="{% url 'activos:activo-list' %}">Activos</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Usuarios</a>
+                        <a class="nav-link" href="{% url 'usuarios:usuario-search' %}">Usuarios</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">Mantenimiento</a>
@@ -73,22 +73,24 @@
 
     <!-- Main Content -->
     <main class="main-content">
-        {% block content %}{% endblock %}
+        <div class="container-fluid">
+            {% block content %}{% endblock %}
+        </div>
     </main>
 
     <!-- Footer -->
-    <footer class="text-center py-3">
+    <footer class="footer mt-auto py-3">
         <div class="container">
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-12 text-center">
                     <img src="{% static 'core/img/logo blanco.png' %}" alt="Consorcio Paldaca" style="max-height: 35px;">
                 </div>
             </div>
             <div class="row mt-2">
-                <div class="col">
+                <div class="col text-center">
                     <a href="{% url 'core:home' %}" class="mx-2">Inicio</a>
                     <a href="{% url 'activos:activo-list' %}" class="mx-2">Activos</a>
-                    <a href="#" class="mx-2">Usuarios</a>
+                    <a href="{% url 'usuarios:usuario-search' %}" class="mx-2">Usuarios</a>
                     <a href="#" class="mx-2">Mantenimiento</a>
                     <a href="#" class="mx-2">Contact</a>
                 </div>

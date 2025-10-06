@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block title %}Activos - {{ block.super }}{% endblock %}
 
 {% block extra_css %}
@@ -209,6 +209,128 @@
     {% endif %}
 </div>
 {% endif %}
+
+<!-- Dashboard de Resumen -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-graph-up"></i> Dashboard de Resumen
+                </h5>
+            </div>
+            <div class="card-body">
+                <!-- Estadísticas Generales -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="stat-item bg-primary text-center p-3 rounded">
+                            <div class="stat-icon">
+                                <i class="bi bi-box-seam"></i>
+                            </div>
+                            <div class="stat-number">{{ total_activos_sistema }}</div>
+                            <div class="stat-label">Total Activos</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-item bg-info text-center p-3 rounded">
+                            <div class="stat-icon">
+                                <i class="bi bi-folder"></i>
+                            </div>
+                            <div class="stat-number">{{ total_categorias }}</div>
+                            <div class="stat-label">Categorías</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-item bg-success text-center p-3 rounded">
+                            <div class="stat-icon">
+                                <i class="bi bi-geo-alt"></i>
+                            </div>
+                            <div class="stat-number">{{ total_ubicaciones }}</div>
+                            <div class="stat-label">Ubicaciones</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-item bg-warning text-center p-3 rounded">
+                            <div class="stat-icon">
+                                <i class="bi bi-person-check"></i>
+                            </div>
+                            <div class="stat-number">{{ total_activos }}</div>
+                            <div class="stat-label">Activos Filtrados</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Activos por Categoría -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-pie-chart"></i> Activos por Categoría</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Categoría</th>
+                                        <th class="text-end">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for categoria in activos_por_categoria %}
+                                    <tr>
+                                        <td>
+                                            <a href="?categoria={{ categoria.id }}" class="text-decoration-none">
+                                                {{ categoria.nombre }}
+                                            </a>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="badge bg-primary">{{ categoria.total_activos }}</span>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="2" class="text-center text-muted">No hay categorías</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Activos por Ubicación -->
+                    <div class="col-md-6">
+                        <h6><i class="bi bi-geo-alt"></i> Activos por Ubicación</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Ubicación</th>
+                                        <th class="text-end">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for ubicacion in activos_por_ubicacion %}
+                                    <tr>
+                                        <td>
+                                            <a href="?ubicacion={{ ubicacion.id }}" class="text-decoration-none">
+                                                {{ ubicacion.nombre }}
+                                            </a>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="badge bg-success">{{ ubicacion.total_activos }}</span>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="2" class="text-center text-muted">No hay ubicaciones</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
     </div>
 </div>
 {% endblock %}

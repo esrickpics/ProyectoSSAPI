@@ -1,14 +1,18 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block title %}Subcategorías - {{ block.super }}{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="bi bi-folder2"></i> Subcategorías</h2>
-    <a href="{% url 'activos:subcategoria-create' %}" class="btn btn-primary">
-        <i class="bi bi-plus-circle"></i> Nueva Subcategoría
-    </a>
-</div>
+<div class="form-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="form-title">
+            <img src="/img/Iconos/subcategorias.svg" alt="Icono" style="width: 32px; height: 32px; margin-right: 10px;">
+            Subcategorías
+        </h2>
+        <a href="{% url 'activos:subcategoria-create' %}" class="btn btn-primary-custom">
+            <i class="bi bi-plus-circle"></i> Nueva Subcategoría
+        </a>
+    </div>
 
 <!-- Filtro por categoría -->
 <div class="card mb-3">
@@ -118,6 +122,7 @@
     <a href="{% url 'activos:subcategoria-create' %}">Crear la primera subcategoría</a>
 </div>
 {% endif %}
+</div>
 {% endblock %}
 
 

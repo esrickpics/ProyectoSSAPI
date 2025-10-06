@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block title %}Usuarios - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2 class="form-title">
+        <img src="/img/Iconos/perfil-usuario.svg" alt="Icono" style="width: 32px; height: 32px; margin-right: 10px;">
+        Perfil de Usuario
+    </h2>
+    <hr class="linea">
+    
+    <!-- Buscador de usuarios -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-10">
+                    <label for="buscar" class="form-label">Buscar Usuario</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text" 
+                               class="form-control" 
+                               id="buscar" 
+                               name="buscar" 
+                               value="{{ buscar }}"
+                               placeholder="Buscar por nombre, apellido, identificación, email o cargo...">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">&nbsp;</label>
+                    <button type="submit" class="btn btn-primary-custom w-100">
+                        <i class="bi bi-search"></i> BUSCAR
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Resultados de búsqueda -->
+    {% if usuarios %}
+        {% for usuario in usuarios %}
+        <div class="card mb-3 usuario-card" onclick="window.location.href='{% url 'usuarios:usuario-profile' usuario.pk %}'">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-1">
+                        <div class="user-avatar">
+                            <i class="bi bi-person-circle" style="font-size: 3rem; color: var(--e-global-color-moradopaldaca);"></i>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <h5 class="mb-1">{{ usuario.nombre_completo }}</h5>
+                        <p class="mb-1 text-muted">
+                            <i class="bi bi-briefcase"></i> {{ usuario.cargo|default:"Sin cargo asignado" }}
+                        </p>
+                        <p class="mb-0 text-muted">
+                            <i class="bi bi-building"></i> {{ usuario.departamento|default:"Sin departamento" }}
+                        </p>
+                    </div>
+                    <div class="col-md-3 text-end">
+                        <div class="user-stats">
+                            <span class="badge bg-info me-2">
+                                <i class="bi bi-box-seam"></i> {{ usuario.activos.count }} activos
+                            </span>
+                            <span class="badge bg-success">
+                                <i class="bi bi-check-circle"></i> Activo
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <!-- Paginación -->
+        {% if is_paginated %}
+        <nav aria-label="Page navigation" class="mt-3">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if buscar %}&buscar={{ buscar }}{% endif %}">&laquo; Primera</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if buscar %}&buscar={{ buscar }}{% endif %}">Anterior</a>
+                </li>
+                {% endif %}
+
+                <li class="page-item active">
+                    <span class="page-link">
+                        Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                    </span>
+                </li>
+
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if buscar %}&buscar={{ buscar }}{% endif %}">Siguiente</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if buscar %}&buscar={{ buscar }}{% endif %}">Última &raquo;</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+
+    {% elif buscar %}
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> No se encontraron usuarios que coincidan con "{{ buscar }}".
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> Utiliza el buscador para encontrar usuarios del sistema.
+        </div>
+    {% endif %}
+
+    <!-- Botón para crear nuevo usuario -->
+    <div class="text-center mt-4">
+        <a href="{% url 'usuarios:usuario-create' %}" class="btn btn-primary-custom">
+            <i class="bi bi-person-plus"></i> Crear Nuevo Usuario
+        </a>
+    </div>
+</div>
+
+<style>
+.usuario-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid #e0e0e0;
+}
+
+.usuario-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-color: var(--e-global-color-moradopaldaca);
+}
+
+.user-avatar {
+    text-align: center;
+}
+
+.user-stats .badge {
+    font-size: 0.8rem;
+}
+</style>
+{% endblock %}

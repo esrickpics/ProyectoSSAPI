@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block title %}Categorías - {{ block.super }}{% endblock %}
 
 {% block extra_css %}
@@ -20,10 +20,10 @@
 <div class="container-fluid px-5 py-4">
     <div class="form-container">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <div class="form-title">
-                <i class="bi bi-folder section-icon"></i>
-                <span>Categorías</span>
-            </div>
+            <h2 class="form-title">
+                <img src="/img/Iconos/categorias.svg" alt="Icono" style="width: 32px; height: 32px; margin-right: 10px;">
+                Categorías
+            </h2>
             <a href="{% url 'activos:categoria-create' %}" class="btn btn-primary-custom">
                 <i class="bi bi-plus-circle"></i> Nueva Categoría
             </a>

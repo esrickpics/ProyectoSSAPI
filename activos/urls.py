@@ -32,5 +32,6 @@ urlpatterns = [
     # URLs de acciones especiales
     path('<int:pk>/reasignar/', views.reasignar_activo, name='activo-reasignar'),
     path('<int:pk>/reubicar/', views.reubicar_activo, name='activo-reubicar'),
+    path('<int:pk>/historial/', views.ActivoHistorialView.as_view(), name='activo-historial'),
 ]
 

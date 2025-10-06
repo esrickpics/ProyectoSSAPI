@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
 
 
 class Categoria(models.Model):
@@ -113,3 +114,55 @@ class Activo(models.Model):
         super().clean()
         if self.codigo_inventario:
             self.codigo_inventario = self.codigo_inventario.upper().strip()
+
+
+class HistorialMovimiento(models.Model):
+    """Historial de movimientos y cambios de activos"""
+    
+    class TipoMovimiento(models.TextChoices):
+        CREACION = 'CR', 'Creación'
+        ACTUALIZACION = 'AC', 'Actualización'
+        REASIGNACION = 'RE', 'Reasignación'
+        REUBICACION = 'RU', 'Reubicación'
+        CAMBIO_ESTADO = 'CE', 'Cambio de Estado'
+        ELIMINACION = 'EL', 'Eliminación'
+    
+    activo = models.ForeignKey(
+        Activo, 
+        on_delete=models.CASCADE,
+        related_name='historial_movimientos'
+    )
+    tipo_movimiento = models.CharField(
+        max_length=2,
+        choices=TipoMovimiento.choices
+    )
+    descripcion = models.TextField()
+    
+    # Campos para rastrear cambios
+    campo_modificado = models.CharField(max_length=100, blank=True, null=True)
+    valor_anterior = models.TextField(blank=True, null=True)
+    valor_nuevo = models.TextField(blank=True, null=True)
+    
+    # Usuario que realizó el movimiento
+    usuario = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='movimientos_activos'
+    )
+    
+    # Fecha del movimiento
+    fecha_movimiento = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        verbose_name = "Historial de Movimiento"
+        verbose_name_plural = "Historial de Movimientos"
+        ordering = ['-fecha_movimiento']
+        indexes = [
+            models.Index(fields=['activo', '-fecha_movimiento']),
+            models.Index(fields=['tipo_movimiento']),
+        ]
+    
+    def __str__(self):
+        return f"{self.activo.codigo_inventario} - {self.get_tipo_movimiento_display()} - {self.fecha_movimiento.strftime('%d/%m/%Y %H:%M')}"
