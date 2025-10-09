@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from .db import DATABASEDES, DATABASEPROD
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,8 +26,8 @@ SECRET_KEY = 'django-insecure-di5^4t_*(zn&xd0i4i0ng!urql(_4e=jg830&3pe*n%zq(5730
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+#ALLOWED_HOSTS = ['https://activos.paldaca.com/', 'activos.paldaca.com']
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -52,6 +53,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'core.middleware.ErrorHandlingMiddleware',
+    'core.middleware.SecurityHeadersMiddleware',
 ]
 
 ROOT_URLCONF = 'SSAPI.urls'
@@ -77,17 +80,7 @@ WSGI_APPLICATION = 'SSAPI.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'PALDACADB',
-        'USER': 'postgres',
-        'PASSWORD': '12345',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
-}
-
+DATABASES = DATABASEDES if DEBUG else DATABASEPROD
 # Configuración alternativa para desarrollo con SQLite (comentado)
 # DATABASES = {
 #     'default': {
@@ -121,12 +114,21 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'es-es'
 
-TIME_ZONE = 'America/Bogota'
+TIME_ZONE = 'America/Caracas'
 
 USE_I18N = True
 
 USE_TZ = True
 
+LOGIN_URL = 'core:login'
+LOGIN_REDIRECT_URL = 'core:home'
+LOGOUT_REDIRECT_URL = 'core:login'
+
+# Configuración de manejo de errores
+handler404 = 'core.views.custom_404_view'
+handler500 = 'core.views.custom_500_view'
+handler403 = 'core.views.custom_403_view'
+handler400 = 'core.views.custom_400_view'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/

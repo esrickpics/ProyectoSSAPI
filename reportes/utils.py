@@ -208,7 +208,7 @@ def crear_tabla_activos(activos):
     for activo in activos:
         row = [
             activo.codigo_inventario,
-            f"{activo.subcategoria.categoria.nombre} - {activo.subcategoria.nombre}",
+            f"{activo.subcategoria.nombre}",
             activo.marca,
             activo.modelo,
             activo.numero_serial or 'N/A',
@@ -219,7 +219,7 @@ def crear_tabla_activos(activos):
         table_data.append(row)
     
     # Crear la tabla con anchos optimizados
-    activos_table = Table(table_data, colWidths=[0.9*inch, 1.3*inch, 0.8*inch, 0.9*inch, 0.8*inch, 0.8*inch, 0.7*inch, 0.8*inch])
+    activos_table = Table(table_data, colWidths=[0.9*inch, 0.9*inch, 0.5*inch, 1.1*inch, 0.8*inch, 1.0*inch, 1.0*inch, 0.8*inch])
     activos_table.setStyle(TableStyle([
         # Estilo del encabezado
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#32407b')),

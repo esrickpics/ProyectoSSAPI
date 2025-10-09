@@ -1,15 +1,16 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DetailView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.db.models import Q, Sum, Case, When, DecimalField
 from django.http import HttpResponseRedirect
 from activos.models import Activo
 from .models import Mantenimiento
 from .forms import MantenimientoForm, MantenimientoFilterForm
+from django.contrib.auth.decorators import login_required
 
-
-class MantenimientoListView(ListView):
+class MantenimientoListView(LoginRequiredMixin, ListView):
     """Vista de lista de mantenimientos"""
     model = Mantenimiento
     template_name = 'mantenimientos/mantenimiento_list.html'
@@ -99,8 +100,7 @@ class MantenimientoListView(ListView):
         
         return context
 
-
-class MantenimientoCreateView(CreateView):
+class MantenimientoCreateView(LoginRequiredMixin, CreateView):
     """Vista para crear un nuevo mantenimiento"""
     model = Mantenimiento
     form_class = MantenimientoForm
@@ -134,7 +134,7 @@ class MantenimientoCreateView(CreateView):
         return self.success_url
 
 
-class MantenimientoUpdateView(UpdateView):
+class MantenimientoUpdateView(LoginRequiredMixin, UpdateView):
     """Vista para actualizar un mantenimiento"""
     model = Mantenimiento
     form_class = MantenimientoForm
@@ -145,8 +145,7 @@ class MantenimientoUpdateView(UpdateView):
         messages.success(self.request, '✅ Mantenimiento actualizado correctamente.')
         return super().form_valid(form)
 
-
-class MantenimientoDetailView(DetailView):
+class MantenimientoDetailView(LoginRequiredMixin, DetailView):
     """Vista de detalle de un mantenimiento"""
     model = Mantenimiento
     template_name = 'mantenimientos/mantenimiento_detail.html'
@@ -155,7 +154,7 @@ class MantenimientoDetailView(DetailView):
     def get_queryset(self):
         return super().get_queryset().select_related('activo__subcategoria__categoria', 'activo__ubicacion', 'activo__usuario_asignado')
 
-
+@login_required
 def finalizar_mantenimiento(request, pk):
     """Vista para finalizar un mantenimiento con un solo click"""
     mantenimiento = get_object_or_404(Mantenimiento, pk=pk)

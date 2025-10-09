@@ -3,6 +3,7 @@ from django.urls import reverse_lazy
 from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, DeleteView
 )
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.db.models import Q, Count
 from .models import Categoria, SubCategoria, Ubicacion, Activo, HistorialMovimiento
@@ -10,18 +11,17 @@ from .forms import (
     CategoriaForm, SubCategoriaForm, UbicacionForm, 
     ActivoForm, ActivoFilterForm, ReasignarActivoForm, ReubicarActivoForm
 )
-
+from django.contrib.auth.decorators import login_required
 
 # ============== VISTAS DE CATEGORÍA ==============
-
-class CategoriaListView(ListView):
+class CategoriaListView(LoginRequiredMixin, ListView):
     model = Categoria
     template_name = 'activos/categoria_list.html'
     context_object_name = 'categorias'
     paginate_by = 20
 
 
-class CategoriaCreateView(CreateView):
+class CategoriaCreateView(LoginRequiredMixin, CreateView):
     model = Categoria
     form_class = CategoriaForm
     template_name = 'activos/categoria_form.html'
@@ -32,7 +32,7 @@ class CategoriaCreateView(CreateView):
         return super().form_valid(form)
 
 
-class CategoriaUpdateView(UpdateView):
+class CategoriaUpdateView(LoginRequiredMixin, UpdateView):
     model = Categoria
     form_class = CategoriaForm
     template_name = 'activos/categoria_form.html'
@@ -43,7 +43,7 @@ class CategoriaUpdateView(UpdateView):
         return super().form_valid(form)
 
 
-class CategoriaDeleteView(DeleteView):
+class CategoriaDeleteView(LoginRequiredMixin, DeleteView):
     model = Categoria
     template_name = 'activos/categoria_confirm_delete.html'
     success_url = reverse_lazy('activos:categoria-list')
@@ -62,7 +62,7 @@ class CategoriaDeleteView(DeleteView):
 
 # ============== VISTAS DE SUBCATEGORÍA ==============
 
-class SubCategoriaListView(ListView):
+class SubCategoriaListView(LoginRequiredMixin, ListView):
     model = SubCategoria
     template_name = 'activos/subcategoria_list.html'
     context_object_name = 'subcategorias'
@@ -81,7 +81,7 @@ class SubCategoriaListView(ListView):
         return context
 
 
-class SubCategoriaCreateView(CreateView):
+class SubCategoriaCreateView(LoginRequiredMixin, CreateView):
     model = SubCategoria
     form_class = SubCategoriaForm
     template_name = 'activos/subcategoria_form.html'
@@ -92,7 +92,7 @@ class SubCategoriaCreateView(CreateView):
         return super().form_valid(form)
 
 
-class SubCategoriaUpdateView(UpdateView):
+class SubCategoriaUpdateView(LoginRequiredMixin, UpdateView):
     model = SubCategoria
     form_class = SubCategoriaForm
     template_name = 'activos/subcategoria_form.html'
@@ -103,7 +103,7 @@ class SubCategoriaUpdateView(UpdateView):
         return super().form_valid(form)
 
 
-class SubCategoriaDeleteView(DeleteView):
+class SubCategoriaDeleteView(LoginRequiredMixin, DeleteView):
     model = SubCategoria
     template_name = 'activos/subcategoria_confirm_delete.html'
     success_url = reverse_lazy('activos:subcategoria-list')
@@ -122,14 +122,14 @@ class SubCategoriaDeleteView(DeleteView):
 
 # ============== VISTAS DE UBICACIÓN ==============
 
-class UbicacionListView(ListView):
+class UbicacionListView(LoginRequiredMixin, ListView):
     model = Ubicacion
     template_name = 'activos/ubicacion_list.html'
     context_object_name = 'ubicaciones'
     paginate_by = 20
 
 
-class UbicacionCreateView(CreateView):
+class UbicacionCreateView(LoginRequiredMixin, CreateView):
     model = Ubicacion
     form_class = UbicacionForm
     template_name = 'activos/ubicacion_form.html'
@@ -140,7 +140,7 @@ class UbicacionCreateView(CreateView):
         return super().form_valid(form)
 
 
-class UbicacionUpdateView(UpdateView):
+class UbicacionUpdateView(LoginRequiredMixin, UpdateView):
     model = Ubicacion
     form_class = UbicacionForm
     template_name = 'activos/ubicacion_form.html'
@@ -151,7 +151,7 @@ class UbicacionUpdateView(UpdateView):
         return super().form_valid(form)
 
 
-class UbicacionDeleteView(DeleteView):
+class UbicacionDeleteView(LoginRequiredMixin, DeleteView):
     model = Ubicacion
     template_name = 'activos/ubicacion_confirm_delete.html'
     success_url = reverse_lazy('activos:ubicacion-list')
@@ -170,7 +170,7 @@ class UbicacionDeleteView(DeleteView):
 
 # ============== VISTAS DE ACTIVO ==============
 
-class ActivoListView(ListView):
+class ActivoListView(LoginRequiredMixin, ListView):
     model = Activo
     template_name = 'activos/activo_list.html'
     context_object_name = 'activos'
@@ -230,7 +230,7 @@ class ActivoListView(ListView):
         return context
 
 
-class ActivoDetailView(DetailView):
+class ActivoDetailView(LoginRequiredMixin, DetailView):
     model = Activo
     template_name = 'activos/activo_detail.html'
     context_object_name = 'activo'
@@ -241,7 +241,7 @@ class ActivoDetailView(DetailView):
         )
 
 
-class ActivoCreateView(CreateView):
+class ActivoCreateView(LoginRequiredMixin, CreateView):
     model = Activo
     form_class = ActivoForm
     template_name = 'activos/activo_form.html'
@@ -252,7 +252,7 @@ class ActivoCreateView(CreateView):
         return super().form_valid(form)
 
 
-class ActivoUpdateView(UpdateView):
+class ActivoUpdateView(LoginRequiredMixin, UpdateView):
     model = Activo
     form_class = ActivoForm
     template_name = 'activos/activo_form.html'
@@ -263,7 +263,7 @@ class ActivoUpdateView(UpdateView):
         return super().form_valid(form)
 
 
-class ActivoDeleteView(DeleteView):
+class ActivoDeleteView(LoginRequiredMixin, DeleteView):
     model = Activo
     template_name = 'activos/activo_confirm_delete.html'
     success_url = reverse_lazy('activos:activo-list')
@@ -275,6 +275,7 @@ class ActivoDeleteView(DeleteView):
 
 # ============== VISTAS ESPECIALES DE ACTIVO ==============
 
+@login_required
 def reasignar_activo(request, pk):
     """Vista para reasignar un activo a otro usuario"""
     activo = get_object_or_404(Activo, pk=pk)
@@ -294,6 +295,7 @@ def reasignar_activo(request, pk):
     })
 
 
+@login_required
 def reubicar_activo(request, pk):
     """Vista para reubicar un activo"""
     activo = get_object_or_404(Activo, pk=pk)
@@ -313,7 +315,7 @@ def reubicar_activo(request, pk):
     })
 
 
-class ActivoHistorialView(DetailView):
+class ActivoHistorialView(LoginRequiredMixin, DetailView):
     """Vista para mostrar el historial de movimientos de un activo"""
     model = Activo
     template_name = 'activos/activo_historial.html'
