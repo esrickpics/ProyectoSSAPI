@@ -1,13 +1,10 @@
 ---
 deployment:
   tasks:
-    # 1️⃣ Define la ruta de despliegue (donde está tu aplicación Python creada en cPanel)
-    - export DEPLOYPATH=/home/ssapmcco/apps/ActivosApp
+    - export DEPLOY_PATH=/home/ssapmcco/apps/ActivosApp
+    - export REPO_PATH=/home/ssapmcco/repositories/Activos
 
-    # 2️⃣ Muestra mensaje informativo (opcional)
-    - /bin/echo "Desplegando aplicación Django en $DEPLOYPATH"
+     # 🧹 Limpiar archivos antiguos del destino (sin tocar logs o tmp)
+    - /usr/bin/find $DEPLOY_PATH -mindepth 1 -maxdepth 1 ! -name "logs" ! -name "tmp" -exec rm -rf {} \;
 
-    # 3️⃣ Sincroniza archivos desde GitHub hacia la carpeta de la aplicación en cPanel
-    - /bin/rsync -av --delete \ --exclude='.git' \ --exclude='venv' \ --exclude='__pycache__' \ --exclude='tmp' \ --exclude='node_modules' \ --exclude='.env' \ --exclude='passenger_wsgi.py' \ --exclude='.htaccess' \ ./ $DEPLOYPATH
-    # 5️⃣ Reinicia Passenger (para recargar la app en producción)
-    - /bin/touch $DEPLOYPATH/tmp/restart.txt
+    - /bin/rsync -avz --exclude='.git*' --exclude='.cpanel.yml' --exclude='tests/' --exclude='.env' $REPO_PATH/ $DEPLOY_PATH/
